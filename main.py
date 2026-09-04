@@ -36,9 +36,9 @@ def home():
 def ask_question(
     request: QuestionRequest
 ):
-
+    
     question = request.question.strip()
-
+    print(question)
     if not question:
 
         raise HTTPException(
