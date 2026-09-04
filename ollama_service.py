@@ -175,7 +175,7 @@ IMPORTANT:
 - Do not invent customers.
 - Do not invent numbers.
 - Do not add information that isn't in the result.
-- If the result is empty, say no matching records were found.
+- If the postgres result is empty, say no matching records were found.
 
 Answer clearly and briefly.
 """
