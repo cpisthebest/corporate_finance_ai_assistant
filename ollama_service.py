@@ -38,6 +38,7 @@ Use SQL for:
 - grouping
 - ranking
 - numerical calculations
+- sum
 
 Use VECTOR for:
 - complaints
