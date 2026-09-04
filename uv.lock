@@ -444,6 +444,7 @@ dependencies = [
     { name = "pandas" },
     { name = "psycopg", extra = ["binary"] },
     { name = "streamlit" },
+    { name = "uvicorn" },
 ]
 
 [package.metadata]
@@ -455,6 +456,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=3.0.5" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.5" },
     { name = "streamlit", specifier = ">=1.63.0" },
+    { name = "uvicorn", specifier = ">=0.52.4" },
 ]
 
 [[package]]
