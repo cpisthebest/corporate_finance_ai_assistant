@@ -1,12 +1,14 @@
-from database import execute_select, vector_search
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+from database import execute_select, vector_search
 from ollama_service import (
     classify_question,
     create_embedding,
     generate_final_answer,
     generate_sql,
 )
-from pydantic import BaseModel
+from rerank import rerank
 
 app = FastAPI(
     title="Excel AI Assistant",
@@ -112,9 +114,9 @@ def ask_question(
         )
 
         rows = vector_search(
-            question_vector
+            question_vector,limit=50
         )
-
+        
         if not rows:
 
             return {
@@ -127,33 +129,57 @@ def ask_question(
 
         result = []
 
+        # for row in rows:
+
+        #     result.append({
+        #         "id": row[0],
+        #         "customer_name": row[1],
+        #         "city": row[2],
+        #         "product": row[3],
+        #         "sales": float(row[4])
+        #             if row[4] is not None
+        #             else None,
+        #         "sale_date": str(row[5])
+        #             if row[5]
+        #             else None,
+        #         "description": row[6],
+        #         "similarity": float(row[7])
+        #     })
+
+        documents = []
+
         for row in rows:
 
-            result.append({
-                "id": row[0],
-                "customer_name": row[1],
-                "city": row[2],
-                "product": row[3],
-                "sales": float(row[4])
-                    if row[4] is not None
-                    else None,
-                "sale_date": str(row[5])
-                    if row[5]
-                    else None,
-                "description": row[6],
-                "similarity": float(row[7])
-            })
+            text = f"""
+            Customer: {row[1]}
+            City: {row[2]}
+            Product: {row[3]}
+            Sales: {row[4]}
+            Date: {row[5]}
+            Description: {row[6]}
+            """
 
+            documents.append(text)
+        print("Documents -> ",documents)
+        reranked = rerank(
+        question,
+        documents,
+        top_k=5
+        )
+
+        context=[]
+        for item in reranked:
+            context.append(item["text"])
 
         answer = generate_final_answer(
             question,
-            result
+            context
         )
 
         return {
             "question": question,
             "mode": "VECTOR",
-            "data": result,
+            "data": context,
             "answer": answer
         }
 

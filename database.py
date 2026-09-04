@@ -81,7 +81,7 @@ def execute_select(sql):
 
         return columns, rows
 
-def vector_search(question_vector):
+def vector_search(question_vector,limit=50):
 
     with get_connection() as conn, conn.cursor() as cur:
 
@@ -99,11 +99,12 @@ def vector_search(question_vector):
                 FROM excel_data
                 WHERE embedding IS NOT NULL
                 ORDER BY embedding <=> %s::vector
-                LIMIT 10
+                LIMIT %s
                 """,
             (
                 question_vector,
-                question_vector
+                question_vector,
+                limit
             )
         )
 

@@ -150,34 +150,38 @@ STRICT RULES:
 
     return sql.strip()
 
-
 def generate_final_answer(
     question,
     database_result
 ):
 
     prompt = f"""
-You are a data assistant.
+You are a PostgreSQL data assistant.
 
-The following result came directly from PostgreSQL
-table excel_data.
+The following records were retrieved from
+PostgreSQL table excel_data.
+
+They were first retrieved using pgvector
+and then reranked using FlashRank.
+
+These records are your ONLY source of information.
 
 USER QUESTION:
 {question}
 
-POSTGRESQL RESULT:
+RERANKED DATABASE RECORDS:
 {database_result}
 
-IMPORTANT:
+STRICT RULES:
 
-- PostgreSQL is the ONLY source of truth.
-- Do not use your own knowledge.
-- Do not invent customers.
-- Do not invent numbers.
-- Do not add information that isn't in the result.
-- If the postgres result is empty, say no matching records were found.
-
-Answer clearly and briefly.
+1. Answer ONLY using the records above.
+2. Do NOT use your pretrained knowledge.
+3. Do NOT invent customers.
+4. Do NOT invent numbers.
+5. Do NOT assume information not present.
+6. If the records do not contain enough information,
+   say that no sufficient information was found.
+7. Keep the answer concise.
 """
 
     response = ollama.chat(
@@ -195,3 +199,4 @@ Answer clearly and briefly.
     ][
         "content"
     ].strip()
+
