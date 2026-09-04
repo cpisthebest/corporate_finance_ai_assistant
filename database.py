@@ -18,11 +18,9 @@ def get_connection():
 
 def get_schema():
 
-    with get_connection() as conn:
+    with get_connection() as conn, conn.cursor() as cur:
 
-        with conn.cursor() as cur:
-
-            cur.execute("""
+        cur.execute("""
                 SELECT
                     column_name,
                     data_type
@@ -32,7 +30,7 @@ def get_schema():
                 ORDER BY ordinal_position
             """)
 
-            return cur.fetchall()
+        return cur.fetchall()
 
 
 def execute_select(sql):
@@ -70,29 +68,25 @@ def execute_select(sql):
             "SQL must query excel_data"
         )
 
-    with get_connection() as conn:
+    with get_connection() as conn, conn.cursor() as cur:
 
-        with conn.cursor() as cur:
+        cur.execute(sql)
 
-            cur.execute(sql)
+        rows = cur.fetchall()
 
-            rows = cur.fetchall()
+        columns = [
+            d.name
+            for d in cur.description
+        ]
 
-            columns = [
-                d.name
-                for d in cur.description
-            ]
-
-            return columns, rows
+        return columns, rows
 
 def vector_search(question_vector):
 
-    with get_connection() as conn:
+    with get_connection() as conn, conn.cursor() as cur:
 
-        with conn.cursor() as cur:
-
-            cur.execute(
-                """
+        cur.execute(
+            """
                 SELECT
                     id,
                     customer_name,
@@ -107,10 +101,10 @@ def vector_search(question_vector):
                 ORDER BY embedding <=> %s
                 LIMIT 10
                 """,
-                (
-                    question_vector,
-                    question_vector
-                )
+            (
+                question_vector,
+                question_vector
             )
+        )
 
-            return cur.fetchall()
+        return cur.fetchall()
