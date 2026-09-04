@@ -95,10 +95,10 @@ def vector_search(question_vector):
                     sales,
                     sale_date,
                     description,
-                    1 - (embedding <=> %s) AS similarity
+                    1 - (embedding <=> %s::vector) AS similarity
                 FROM excel_data
                 WHERE embedding IS NOT NULL
-                ORDER BY embedding <=> %s
+                ORDER BY embedding <=> %s::vector
                 LIMIT 10
                 """,
             (
